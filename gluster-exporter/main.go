@@ -28,11 +28,11 @@ var (
 )
 
 var (
-	showVersion                   = flag.Bool("version", false, "Show the version information")
-	docgen                        = flag.Bool("docgen", false, "Generate exported metrics documentation in Asciidoc format")
-	config                        = flag.String("config", defaultConfFile, "Config file path")
-	defaultInterval time.Duration = 5
-	clusterIDLabel                = MetricLabel{
+	showVersion     = flag.Bool("version", false, "Show the version information")
+	docgen          = flag.Bool("docgen", false, "Generate exported metrics documentation in Asciidoc format")
+	config          = flag.String("config", defaultConfFile, "Config file path")
+	defaultInterval = time.Minute
+	clusterIDLabel  = MetricLabel{
 		Name: "cluster_id",
 		Help: "Cluster ID",
 	}
@@ -105,43 +105,42 @@ func main() {
 		exporterConf.GlusterdWorkdir =
 			getDefaultGlusterdDir(exporterConf.GlusterMgmt)
 	}
+	// exporter's config will have proper Cluster ID set
+	clusterID = exporterConf.GlusterClusterID
+
 	gluster = glusterutils.MakeGluster(exporterConf)
-
-	// start := time.Now()
-
+	registered := 0
 	for _, m := range glusterMetrics {
-		if collectorConf, ok := exporterConf.CollectorsConf[m.name]; ok {
-			if !collectorConf.Disabled {
-				go func(m glusterMetric, gi glusterutils.GInterface) {
-					for {
-						// exporter's config will have proper Cluster ID set
-						clusterID = exporterConf.GlusterClusterID
-						err := m.fn(gi)
-						interval := defaultInterval
-						if collectorConf.SyncInterval > 0 {
-							interval = time.Duration(collectorConf.SyncInterval)
-						}
-						if err != nil {
-							log.WithError(err).WithFields(log.Fields{
-								"name": m.name,
-							}).Debug("failed to export metric")
-						}
-						time.Sleep(time.Second * interval)
-					}
-				}(m, gluster)
+		interval := defaultInterval
+		if c, ok := exporterConf.CollectorsConf[m.name]; ok {
+			if c.Disabled {
+				continue
+			}
+			if c.SyncInterval > 0 {
+				interval = time.Duration(c.SyncInterval)
 			}
 		}
+
+		go func(m glusterMetric, gi glusterutils.GInterface, itvl time.Duration) {
+			for {
+				if err := m.fn(gi); err != nil {
+					log.WithError(err).WithFields(log.Fields{
+						"name": m.name,
+					}).Debug("failed to export metric")
+				}
+				time.Sleep(itvl)
+			}
+		}(m, gluster, interval)
+		registered++
 	}
 
-	if len(glusterMetrics) == 0 {
+	if registered == 0 {
 		_, _ = fmt.Fprintf(os.Stderr, "No Metrics registered, Exiting..\n")
 		os.Exit(1)
 	}
 
-	metricsPath := exporterConf.MetricsPath
-	port := exporterConf.Port
-	http.Handle(metricsPath, promhttp.Handler())
-	if err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil); err != nil {
+	http.Handle(exporterConf.MetricsPath, promhttp.Handler())
+	if err := http.ListenAndServe(fmt.Sprintf(":%d", exporterConf.Port), nil); err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "Failed to run exporter\nError: %s", err)
 		log.WithError(err).Fatal("Failed to run exporter")
 	}
