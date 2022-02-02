@@ -1,7 +1,9 @@
-package main
+package doc
 
 import (
 	"fmt"
+
+	"github.com/gluster/gluster-prometheus/pkg/metrics"
 )
 
 // AdocWriter is Asciidoc writer
@@ -42,12 +44,12 @@ func (w *AdocWriter) tableRow(fields []string) string {
 	return out
 }
 
-func generateMetricsDoc() {
+func GenerateMetricsDoc() {
 	// Asciidoc writer
 	writer := AdocWriter{}
 
 	fmt.Println(writer.h1("Metrics Exported by Gluster Prometheus exporter"))
-	for _, m := range metrics {
+	for _, m := range metrics.Metrics {
 		fmt.Println(writer.h2(m.Namespace + "_" + m.Name))
 		desc := m.LongHelp
 		if desc == "" {

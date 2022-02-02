@@ -1,4 +1,4 @@
-package main
+package metrics
 
 import (
 	"strconv"
@@ -127,7 +127,7 @@ func volumeInfo(gluster glusterutils.GInterface) (err error) {
 
 	for _, vol := range volumes {
 		brickCountLabels := prometheus.Labels{
-			"instance":    instanceFQDN,
+			"instance":    InstanceFQDN,
 			"volume_name": vol.Name,
 		}
 		volStatusGaugeVecs[glusterVolStatusBrickCount].Set(brickCountLabels, float64(len(vol.Nodes)))
@@ -136,7 +136,7 @@ func volumeInfo(gluster glusterutils.GInterface) (err error) {
 			brickPid := strconv.Itoa(node.PID)
 
 			perBrickLabels := prometheus.Labels{
-				"instance":    instanceFQDN,
+				"instance":    InstanceFQDN,
 				"volume_name": vol.Name,
 				"hostname":    node.Hostname,
 				"peerid":      node.PeerID,

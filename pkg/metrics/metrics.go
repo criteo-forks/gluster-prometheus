@@ -1,11 +1,32 @@
-package main
+package metrics
 
 import (
 	"time"
 
+	"github.com/gluster/gluster-prometheus/pkg/glusterutils"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/model"
 )
+
+var (
+	clusterIDLabel = MetricLabel{
+		Name: "cluster_id",
+		Help: "Cluster ID",
+	}
+	ClusterID    string
+	InstanceFQDN string
+)
+
+type GlusterMetric struct {
+	Name string
+	FN   func(glusterutils.GInterface) error
+}
+
+var GlusterMetrics []GlusterMetric
+
+func registerMetric(name string, fn func(glusterutils.GInterface) error) {
+	GlusterMetrics = append(GlusterMetrics, GlusterMetric{Name: name, FN: fn})
+}
 
 // MetricLabel represents Prometheus Label
 type MetricLabel struct {
@@ -33,7 +54,7 @@ func (m *Metric) LabelNames() []string {
 	return out
 }
 
-var metrics []Metric
+var Metrics []Metric
 var defaultMetricTTL = 2 * time.Minute
 
 // MetricWithTTL represents the metric with label combinations
@@ -73,7 +94,7 @@ func registerExportedGaugeVec(m Metric, exported *map[string]*ExportedGaugeVec) 
 	}
 
 	// Add the metric to the global queue
-	metrics = append(metrics, m)
+	Metrics = append(Metrics, m)
 
 	(*exported)[m.Name] = &ExportedGaugeVec{
 		Namespace: m.Namespace,

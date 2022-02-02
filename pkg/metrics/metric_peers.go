@@ -1,4 +1,4 @@
-package main
+package metrics
 
 import (
 	"github.com/gluster/gluster-prometheus/pkg/glusterutils"
@@ -73,7 +73,7 @@ func peerInfo(gluster glusterutils.GInterface) (err error) {
 	}
 
 	peerCountLabels := prometheus.Labels{
-		"instance": instanceFQDN,
+		"instance": InstanceFQDN,
 	}
 
 	peerGaugeVecs[glusterPeerCount].Set(peerCountLabels, float64(len(peers)))
@@ -81,7 +81,7 @@ func peerInfo(gluster glusterutils.GInterface) (err error) {
 	var connected int
 	for _, peer := range peers {
 		peerSCLabels := prometheus.Labels{
-			"instance": instanceFQDN,
+			"instance": InstanceFQDN,
 			"hostname": peer.PeerAddresses[0],
 			"uuid":     peer.ID,
 		}

@@ -1,10 +1,10 @@
-package main
+package metrics
 
 import (
 	"errors"
 	"strings"
 
-	"github.com/gluster/gluster-prometheus/gluster-exporter/conf"
+	"github.com/gluster/gluster-prometheus/pkg/conf"
 	"github.com/gluster/gluster-prometheus/pkg/glusterutils"
 	"github.com/gluster/gluster-prometheus/pkg/glusterutils/glusterconsts"
 	"github.com/prometheus/client_golang/prometheus"
@@ -302,7 +302,7 @@ func newEntryOpType() opType {
 
 func getVolumeHealLabels(volname string, host string, brick string) prometheus.Labels {
 	return prometheus.Labels{
-		"cluster_id": clusterID,
+		"cluster_id": ClusterID,
 		"volume":     volname,
 		"brick_path": brick,
 		"host":       host,
@@ -369,7 +369,7 @@ func healCounts(gluster glusterutils.GInterface) error {
 
 func getVolumeProfileInfoLabels(volname string, brick string) prometheus.Labels {
 	return prometheus.Labels{
-		"cluster_id": clusterID,
+		"cluster_id": ClusterID,
 		"volume":     volname,
 		"brick":      brick,
 	}
@@ -377,7 +377,7 @@ func getVolumeProfileInfoLabels(volname string, brick string) prometheus.Labels 
 
 func getVolumeProfileFopInfoLabels(volname string, brick string, host string, fop string) prometheus.Labels {
 	return prometheus.Labels{
-		"cluster_id": clusterID,
+		"cluster_id": ClusterID,
 		"volume":     volname,
 		"brick":      brick,
 		"host":       host,

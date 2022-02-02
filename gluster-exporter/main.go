@@ -9,10 +9,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gluster/gluster-prometheus/gluster-exporter/conf"
+	"github.com/gluster/gluster-prometheus/pkg/conf"
+	"github.com/gluster/gluster-prometheus/pkg/doc"
 	"github.com/gluster/gluster-prometheus/pkg/glusterutils"
 	"github.com/gluster/gluster-prometheus/pkg/glusterutils/glusterconsts"
 	"github.com/gluster/gluster-prometheus/pkg/logging"
+	"github.com/gluster/gluster-prometheus/pkg/metrics"
 
 	"github.com/Showmax/go-fqdn"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -33,24 +35,7 @@ var (
 	docgen          = flag.Bool("docgen", false, "Generate exported metrics documentation in Asciidoc format")
 	config          = flag.String("config", defaultConfFile, "Config file path")
 	defaultInterval = time.Minute
-	clusterIDLabel  = MetricLabel{
-		Name: "cluster_id",
-		Help: "Cluster ID",
-	}
-	clusterID    string
-	instanceFQDN string
 )
-
-type glusterMetric struct {
-	name string
-	fn   func(glusterutils.GInterface) error
-}
-
-var glusterMetrics []glusterMetric
-
-func registerMetric(name string, fn func(glusterutils.GInterface) error) {
-	glusterMetrics = append(glusterMetrics, glusterMetric{name: name, fn: fn})
-}
 
 func dumpVersionInfo() {
 	fmt.Printf("version   : %s\n", exporterVersion)
@@ -73,7 +58,7 @@ func main() {
 	flag.Parse()
 
 	if *docgen {
-		generateMetricsDoc()
+		doc.GenerateMetricsDoc()
 		return
 	}
 
@@ -86,7 +71,7 @@ func main() {
 	if err != nil {
 		log.WithError(err).Fatal("Failed to guess FQDN")
 	}
-	instanceFQDN = f
+	metrics.InstanceFQDN = f
 
 	var gluster glusterutils.GInterface
 	exporterConf, err := conf.LoadConfig(*config)
@@ -113,13 +98,13 @@ func main() {
 			getDefaultGlusterdDir(exporterConf.GlusterMgmt)
 	}
 	// exporter's config will have proper Cluster ID set
-	clusterID = exporterConf.GlusterClusterID
+	metrics.ClusterID = exporterConf.GlusterClusterID
 
 	gluster = glusterutils.MakeGluster(exporterConf)
 	registered := 0
-	for _, m := range glusterMetrics {
+	for _, m := range metrics.GlusterMetrics {
 		interval := defaultInterval
-		if c, ok := exporterConf.CollectorsConf[m.name]; ok {
+		if c, ok := exporterConf.CollectorsConf[m.Name]; ok {
 			if c.Disabled {
 				continue
 			}
@@ -128,11 +113,11 @@ func main() {
 			}
 		}
 
-		go func(m glusterMetric, gi glusterutils.GInterface, itvl time.Duration) {
+		go func(m metrics.GlusterMetric, gi glusterutils.GInterface, itvl time.Duration) {
 			for {
-				if err := m.fn(gi); err != nil {
+				if err := m.FN(gi); err != nil {
 					log.WithError(err).WithFields(log.Fields{
-						"name": m.name,
+						"name": m.Name,
 					}).Debug("failed to export metric")
 				}
 				time.Sleep(itvl)

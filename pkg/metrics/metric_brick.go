@@ -1,4 +1,4 @@
-package main
+package metrics
 
 import (
 	"encoding/json"
@@ -301,7 +301,7 @@ var (
 
 func getGlusterBrickLabels(brick glusterutils.Brick, subvol string) prometheus.Labels {
 	return prometheus.Labels{
-		"cluster_id": clusterID,
+		"cluster_id": ClusterID,
 		"host":       brick.Host,
 		"id":         brick.ID,
 		"brick_path": brick.Path,
@@ -312,7 +312,7 @@ func getGlusterBrickLabels(brick glusterutils.Brick, subvol string) prometheus.L
 
 func getGlusterSubvolLabels(volname string, subvol string) prometheus.Labels {
 	return prometheus.Labels{
-		"cluster_id": clusterID,
+		"cluster_id": ClusterID,
 		"volume":     volname,
 		"subvolume":  subvol,
 	}
@@ -523,7 +523,7 @@ func parseProcMounts() ([]ProcMounts, error) {
 
 func getGlusterLVMLabels(brick glusterutils.Brick, subvol string, stat LVMStat) prometheus.Labels {
 	return prometheus.Labels{
-		"cluster_id": clusterID,
+		"cluster_id": ClusterID,
 		"host":       brick.Host,
 		"id":         brick.ID,
 		"brick_path": brick.Path,
@@ -537,7 +537,7 @@ func getGlusterLVMLabels(brick glusterutils.Brick, subvol string, stat LVMStat) 
 
 func getGlusterThinPoolLabels(brick glusterutils.Brick, vol string, subvol string, thinStat ThinPoolStat) prometheus.Labels {
 	return prometheus.Labels{
-		"cluster_id":    clusterID,
+		"cluster_id":    ClusterID,
 		"host":          brick.Host,
 		"thinpool_name": thinStat.ThinPoolName,
 		"vg_name":       thinStat.ThinPoolVGName,
@@ -704,7 +704,7 @@ func brickUtilization(gluster glusterutils.GInterface) error {
 
 func getBrickStatusLabels(vol string, host string, brickPath string, peerID string, pid int) prometheus.Labels {
 	return prometheus.Labels{
-		"cluster_id": clusterID,
+		"cluster_id": ClusterID,
 		"volume":     vol,
 		"hostname":   host,
 		"brick_path": brickPath,

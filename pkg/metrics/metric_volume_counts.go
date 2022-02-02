@@ -1,4 +1,4 @@
-package main
+package metrics
 
 import (
 	"github.com/gluster/gluster-prometheus/pkg/glusterutils"
@@ -82,7 +82,7 @@ var (
 
 func getVolumeLabels(volname string) prometheus.Labels {
 	return prometheus.Labels{
-		"cluster_id": clusterID,
+		"cluster_id": ClusterID,
 		"volume":     volname,
 	}
 }
@@ -146,13 +146,13 @@ func volumeCounts(gluster glusterutils.GInterface) error {
 		volumeCountGaugeVecs[glusterVolumeSnapshotBrickCountActive].Set(getVolumeLabels(volume.Name), float64(volSnapBrickCountActive))
 	}
 	volumeCountGaugeVecs[glusterVolumeTotalCount].Set(prometheus.Labels{
-		"cluster_id": clusterID,
+		"cluster_id": ClusterID,
 	}, float64(volCount))
 	volumeCountGaugeVecs[glusterVolumeStartedCount].Set(prometheus.Labels{
-		"cluster_id": clusterID,
+		"cluster_id": ClusterID,
 	}, float64(volStartCount))
 	volumeCountGaugeVecs[glusterVolumeCreatedCount].Set(prometheus.Labels{
-		"cluster_id": clusterID,
+		"cluster_id": ClusterID,
 	}, float64(volCreatedCount))
 	return nil
 }

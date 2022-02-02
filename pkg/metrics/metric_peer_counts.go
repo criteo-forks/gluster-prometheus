@@ -1,4 +1,4 @@
-package main
+package metrics
 
 import (
 	"bytes"
@@ -185,13 +185,13 @@ func peerCounts(gluster glusterutils.GInterface) (err error) {
 		return err
 	}
 	genrlLbls := prometheus.Labels{
-		"cluster_id": clusterID,
+		"cluster_id": ClusterID,
 		"name":       "Physical_Volumes",
 		"peerID":     peerID,
 	}
 	peerCountsGaugeVecs[glusterPVCount].Set(genrlLbls, float64(pMetrics.PVCount))
 	genrlLbls = prometheus.Labels{
-		"cluster_id": clusterID,
+		"cluster_id": ClusterID,
 		"name":       "Volume_Groups",
 		"peerID":     peerID,
 	}
@@ -199,7 +199,7 @@ func peerCounts(gluster glusterutils.GInterface) (err error) {
 	// logical volume counts are added specific to each VG
 	for vgName, lvCount := range pMetrics.LVCountMap {
 		genrlLbls = prometheus.Labels{
-			"cluster_id": clusterID,
+			"cluster_id": ClusterID,
 			"name":       "Logical_Volumes",
 			"peerID":     peerID,
 			"vgName":     vgName,
@@ -209,7 +209,7 @@ func peerCounts(gluster glusterutils.GInterface) (err error) {
 	// similarly thinpool counts are also added per VG
 	for vgName, tpCount := range pMetrics.ThinPoolCountMap {
 		genrlLbls = prometheus.Labels{
-			"cluster_id": clusterID,
+			"cluster_id": ClusterID,
 			"name":       "ThinPool_Count",
 			"peerID":     peerID,
 			"vgName":     vgName,

@@ -1,4 +1,4 @@
-package main
+package metrics
 
 import (
 	"io/ioutil"
@@ -96,7 +96,7 @@ func getCmdLine(pid string) ([]string, error) {
 
 func getGlusterdLabels(peerID, cmd string) prometheus.Labels {
 	return prometheus.Labels{
-		"cluster_id": clusterID,
+		"cluster_id": ClusterID,
 		"name":       cmd,
 		"volume":     "",
 		"peerid":     peerID,
@@ -120,7 +120,7 @@ func getGlusterFsdLabels(peerID, cmd string, args []string) prometheus.Labels {
 	}
 
 	return prometheus.Labels{
-		"cluster_id": clusterID,
+		"cluster_id": ClusterID,
 		"name":       cmd,
 		"volume":     volume,
 		"peerid":     peerID,
@@ -130,7 +130,7 @@ func getGlusterFsdLabels(peerID, cmd string, args []string) prometheus.Labels {
 
 func getUnknownLabels(peerID, cmd string) prometheus.Labels {
 	return prometheus.Labels{
-		"cluster_id": clusterID,
+		"cluster_id": ClusterID,
 		"name":       cmd,
 		"volume":     "",
 		"peerid":     peerID,
