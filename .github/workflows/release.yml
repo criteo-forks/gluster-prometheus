@@ -1,0 +1,42 @@
+name: Go
+
+on:
+  push:
+    tags: [ 'v*-criteo' ]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.17
+
+    - name: Get version
+      id: get_version
+      run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+
+    - name: Build
+      env:
+        GOOS: linux
+        GOARCH: amd64
+        VERSION: ${{ steps.get_version.outputs.VERSION }}
+      run: go build -v -ldflags "-X main.exporterVersion=${VERSION}" -o gluster-prometheus-exporter-${GOOS}-${GOARCH} ./gluster-exporter/...
+
+    - name: Generate checksums
+      id: gen_checksums
+      run: sha256sum gluster-prometheus-exporter-* > checksums.txt
+
+    - name: Create release
+      run: |
+        gh release create "${VERSION}" -t "${VERSION}"
+        gh release upload "${VERSION}" gluster-prometheus-exporter-*
+        gh release upload "${VERSION}" checksums.txt
+        gh release view "${VERSION}"
+      env:
+        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        VERSION: ${{ steps.get_version.outputs.VERSION }}
