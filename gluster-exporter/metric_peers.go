@@ -72,17 +72,8 @@ func peerInfo(gluster glusterutils.GInterface) (err error) {
 		return err
 	}
 
-	fqdn := "n/a"
-	for _, peer := range peers {
-		if peer.ID == peerID {
-			// TODO: figure out which value of PeerAddresses may
-			// be hostname -- or resolve ip ourselves
-			fqdn = peer.PeerAddresses[0]
-		}
-	}
-
 	peerCountLabels := prometheus.Labels{
-		"instance": fqdn,
+		"instance": instanceFQDN,
 	}
 
 	peerGaugeVecs[glusterPeerCount].Set(peerCountLabels, float64(len(peers)))
@@ -90,7 +81,7 @@ func peerInfo(gluster glusterutils.GInterface) (err error) {
 	var connected int
 	for _, peer := range peers {
 		peerSCLabels := prometheus.Labels{
-			"instance": fqdn,
+			"instance": instanceFQDN,
 			"hostname": peer.PeerAddresses[0],
 			"uuid":     peer.ID,
 		}

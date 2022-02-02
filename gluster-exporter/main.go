@@ -14,6 +14,7 @@ import (
 	"github.com/gluster/gluster-prometheus/pkg/glusterutils/glusterconsts"
 	"github.com/gluster/gluster-prometheus/pkg/logging"
 
+	"github.com/Showmax/go-fqdn"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
 )
@@ -36,7 +37,8 @@ var (
 		Name: "cluster_id",
 		Help: "Cluster ID",
 	}
-	clusterID string
+	clusterID    string
+	instanceFQDN string
 )
 
 type glusterMetric struct {
@@ -68,7 +70,6 @@ func main() {
 	if err := logging.Init("", "-", "info"); err != nil {
 		log.Fatal("Init logging failed for stderr")
 	}
-
 	flag.Parse()
 
 	if *docgen {
@@ -80,6 +81,12 @@ func main() {
 		dumpVersionInfo()
 		return
 	}
+
+	f, err := fqdn.FqdnHostname()
+	if err != nil {
+		log.WithError(err).Fatal("Failed to guess FQDN")
+	}
+	instanceFQDN = f
 
 	var gluster glusterutils.GInterface
 	exporterConf, err := conf.LoadConfig(*config)

@@ -125,25 +125,9 @@ func volumeInfo(gluster glusterutils.GInterface) (err error) {
 		return err
 	}
 
-	// Get monitored gluster instance FQDN
-	peers, err := gluster.Peers()
-	if err != nil {
-		log.WithError(err).WithFields(log.Fields{"peer": peerID}).Debug("[Gluster Volume Status] Error:", err)
-		return err
-	}
-	fqdn := "n/a"
-	for _, peer := range peers {
-		if peer.ID == peerID {
-			// TODO: figure out which value of PeerAddresses may
-			// be hostname -- or resolve ip ourselves
-			fqdn = peer.PeerAddresses[0]
-			break
-		}
-	}
-
 	for _, vol := range volumes {
 		brickCountLabels := prometheus.Labels{
-			"instance":    fqdn,
+			"instance":    instanceFQDN,
 			"volume_name": vol.Name,
 		}
 		volStatusGaugeVecs[glusterVolStatusBrickCount].Set(brickCountLabels, float64(len(vol.Nodes)))
@@ -152,7 +136,7 @@ func volumeInfo(gluster glusterutils.GInterface) (err error) {
 			brickPid := strconv.Itoa(node.PID)
 
 			perBrickLabels := prometheus.Labels{
-				"instance":    fqdn,
+				"instance":    instanceFQDN,
 				"volume_name": vol.Name,
 				"hostname":    node.Hostname,
 				"peerid":      node.PeerID,

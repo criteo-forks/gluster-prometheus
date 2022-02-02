@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	github.com/BurntSushi/toml v1.0.0
+	github.com/Showmax/go-fqdn v1.0.0
 	github.com/gluster/glusterd2 v5.0.0-rc0.0.20190329150050-54ce5f6f7a71+incompatible
 	github.com/prometheus/client_golang v1.12.1
 	github.com/prometheus/common v0.32.1
