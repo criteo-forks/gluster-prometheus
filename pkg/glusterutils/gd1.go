@@ -51,6 +51,11 @@ type gd1Volume struct {
 	Options                 []gd1Option  `xml:"options>option"`
 }
 
+type gd1VolumesList struct {
+	XMLName xml.Name `xml:"cliOutput"`
+	List    []string `xml:"volList>volume"`
+}
+
 type gd1Volumes struct {
 	XMLName xml.Name    `xml:"cliOutput"`
 	List    []gd1Volume `xml:"volInfo>volumes>volume"`
@@ -65,6 +70,22 @@ type gd1VolumeStatusDetail struct {
 type gd1VolumesDetail struct {
 	XMLName xml.Name                `xml:"cliOutput"`
 	List    []gd1VolumeStatusDetail `xml:"volStatus>volumes>volume"`
+}
+
+type gd1VolumeQuotaLimit struct {
+	Path              string `xml:"path"`
+	HardLimit         uint64 `xml:"hard_limit"`
+	SoftLimitPercent  string `xml:"soft_limit_percent"`
+	SoftLimitValue    uint64 `xml:"soft_limit_value"`
+	UsedSpace         uint64 `xml:"used_space"`
+	AvailSpace        uint64 `xml:"avail_space"`
+	SoftLimitExceeded string `xml:"sl_exceeded"`
+	HardLimitExceeded string `xml:"hl_exceeded"`
+}
+
+type gd1VolumeQuotas struct {
+	XMLName xml.Name              `xml:"cliOutput"`
+	List    []gd1VolumeQuotaLimit `xml:"volQuota>limit"`
 }
 
 type snapshotParentVolume struct {

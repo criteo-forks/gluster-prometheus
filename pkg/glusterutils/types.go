@@ -59,6 +59,19 @@ type VolumeStatus struct {
 	Nodes []BrickStatus
 }
 
+// Quota represents a volume quota
+type Quota struct {
+	Volume            string `json:"volume"`
+	Path              string `json:"path"`
+	HardLimit         uint64 `json:"hard_limit_bytes"`
+	SoftLimitPercent  int    `json:"soft_limit_percent"`
+	SoftLimit         uint64 `json:"soft_limit_bytes"`
+	Used              uint64 `json:"used_bytes"`
+	Available         uint64 `json:"available_bytes"`
+	SoftLimitExceeded bool   `json:"soft_limit_exceeded"`
+	HardLimitExceeded bool   `json:"hard_limit_exceeded"`
+}
+
 // HealEntry describe gluster heal info for each brick
 type HealEntry struct {
 	PeerID         string
@@ -98,6 +111,7 @@ type GInterface interface {
 	HealInfo(vol string) ([]HealEntry, error)
 	SplitBrainHealInfo(vol string) ([]HealEntry, error)
 	VolumeInfo() ([]Volume, error)
+	Quotas() ([]Quota, error)
 	Snapshots() ([]Snapshot, error)
 	VolumeProfileInfo(vol string) ([]ProfileInfo, error)
 	VolumeBrickStatus(vol string) ([]BrickStatus, error)

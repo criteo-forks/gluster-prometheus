@@ -336,6 +336,28 @@ func (gc *GCache) VolumeProfileInfo(vol string) ([]ProfileInfo, error) {
 	return retVal, err
 }
 
+// VolumeInfo method wraps the GInterface.VolumeInfo call
+func (gc *GCache) Quotas() ([]Quota, error) {
+	gc.lock.Lock()
+	defer gc.lock.Unlock()
+	const localName = "Quotas"
+	var retVal []Quota
+	var err error
+	var ok bool
+	if gc.timeForNewCall(localName, localName) {
+		if retVal, err = gc.gd.Quotas(); err != nil {
+			return retVal, err
+		}
+		// reset the last called time only on a successful call
+		gc.lastCallTimeMap[localName] = time.Now()
+		gc.lastCallValueMap[localName] = retVal
+	}
+	if retVal, ok = gc.lastCallValueMap[localName].([]Quota); !ok {
+		err = errors.New("[CacheError] Unable to convert back to a valid return type")
+	}
+	return retVal, err
+}
+
 // GConfig implements GConfigInterface
 func (gc *GCache) GConfig() (gConf *conf.GConfig) {
 	// below comment is needed to avoid go-metalinter failures
