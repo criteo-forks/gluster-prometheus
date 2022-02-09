@@ -131,6 +131,7 @@ func main() {
 		os.Exit(1)
 	}
 
+	http.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) { w.Write([]byte("OK\n")) })
 	http.Handle(exporterConf.MetricsPath, promhttp.Handler())
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", exporterConf.Port), nil); err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "Failed to run exporter\nError: %s", err)
