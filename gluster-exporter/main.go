@@ -109,7 +109,7 @@ func main() {
 				continue
 			}
 			if c.SyncInterval > 0 {
-				interval = time.Duration(c.SyncInterval)
+				interval = time.Duration(c.SyncInterval) * time.Second
 			}
 		}
 
