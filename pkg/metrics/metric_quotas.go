@@ -20,13 +20,13 @@ var (
 	quotasGaugeVers  = make(map[string]*ExportedGaugeVec)
 	glusterQuotaUsed = registerExportedGaugeVec(Metric{
 		Namespace: "gluster",
-		Name:      "quota_used",
+		Name:      "quota_used_bytes",
 		Help:      "Quota used in bytes",
 		Labels:    quotaMetricsLabels,
 	}, &quotasGaugeVers)
 	glusterQuotaAvailable = registerExportedGaugeVec(Metric{
 		Namespace: "gluster",
-		Name:      "quota_available",
+		Name:      "quota_available_bytes",
 		Help:      "Quota available in bytes",
 		Labels:    quotaMetricsLabels,
 	}, &quotasGaugeVers)

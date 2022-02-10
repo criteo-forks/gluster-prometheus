@@ -38,6 +38,7 @@ func (g *GD1) Quotas() ([]Quota, error) {
 			}
 
 			outq := Quota{
+				Volume:            vol,
 				Path:              quota.Path,
 				Available:         quota.AvailSpace,
 				Used:              quota.UsedSpace,
